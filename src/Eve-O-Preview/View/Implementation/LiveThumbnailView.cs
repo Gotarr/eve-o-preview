@@ -24,6 +24,8 @@ namespace EveOPreview.View
 
 		protected override void RefreshThumbnail(bool forceRefresh)
 		{
+			// OPTIMIERT: Bei ForceRefreshCycleThreshold=1 wird jeder Zyklus refreshed
+			// Dies gibt nahezu "Live"-Updates für Mining-Überwachung
 			// To prevent flickering the old broken thumbnail is removed AFTER the new shiny one is created
 			IDwmThumbnail obsoleteThumbnail = forceRefresh ? this._thumbnail : null;
 

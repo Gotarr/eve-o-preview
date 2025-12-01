@@ -24,7 +24,6 @@ namespace EveOPreview.Services
 		private const int WINDOW_POSITION_THRESHOLD_LOW = -10_000;
 		private const int WINDOW_POSITION_THRESHOLD_HIGH = 31_000;
 		private const int WINDOW_SIZE_THRESHOLD = 10;
-		private const int FORCED_REFRESH_CYCLE_THRESHOLD = 2;
 		private const int DEFAULT_LOCATION_CHANGE_NOTIFICATION_DELAY = 2;
 
 		private const string DEFAULT_CLIENT_TITLE = "EVE";
@@ -457,7 +456,7 @@ namespace EveOPreview.Services
 			this._refreshCycleCount++;
 
 			bool forceRefresh;
-			if (this._refreshCycleCount >= ThumbnailManager.FORCED_REFRESH_CYCLE_THRESHOLD)
+			if (this._refreshCycleCount >= this._configuration.ForceRefreshCycleThreshold)
 			{
 				this._refreshCycleCount = 0;
 				forceRefresh = true;

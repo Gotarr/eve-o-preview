@@ -32,12 +32,11 @@ namespace EveOPreview.Configuration
 		Dictionary<string, Size> PerClientThumbnailSize { get; set; }
 		Dictionary<string, bool> CycleGroupExclusions { get; set; }
 
-		bool MinimizeToTray { get; set; }
-		int ThumbnailRefreshPeriod { get; set; }
-		int ThumbnailResizeTimeoutPeriod { get; set; }
-		bool EnableWineCompatibilityMode { get; set; }
-
-		double ThumbnailOpacity { get; set; }
+	bool MinimizeToTray { get; set; }
+	int ThumbnailRefreshPeriod { get; set; }
+	int ThumbnailResizeTimeoutPeriod { get; set; }
+	int ForceRefreshCycleThreshold { get; set; }
+	bool EnableWineCompatibilityMode { get; set; }		double ThumbnailOpacity { get; set; }
 
 		bool EnableClientLayoutTracking { get; set; }
 		bool HideActiveClientThumbnail { get; set; }

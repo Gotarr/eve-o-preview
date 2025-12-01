@@ -81,9 +81,9 @@ namespace EveOPreview.View
 						this.NotifyIcon.Icon = this.Icon;
 					}
 				}
-				catch (Exception ex)
+				catch (Exception)
 				{
-					// Log ?
+					// Icon konnte nicht geladen werden - verwende Default
 				}
 
 				if (value != "")

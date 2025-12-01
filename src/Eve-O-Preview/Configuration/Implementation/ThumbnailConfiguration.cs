@@ -12,6 +12,8 @@ namespace EveOPreview.Configuration.Implementation
 		#region Private fields
 		private bool _enablePerClientThumbnailLayouts;
 		private bool _enableClientLayoutTracking;
+		private static Font _cachedOverlayFont;
+		private Font _overlayLabelFont;
 		#endregion
 
 		public ThumbnailConfiguration()
@@ -96,6 +98,7 @@ namespace EveOPreview.Configuration.Implementation
 			this.MinimizeToTray = false;
 			this.ThumbnailRefreshPeriod = 500;
 			this.ThumbnailResizeTimeoutPeriod = 500;
+			this.ForceRefreshCycleThreshold = 1;  // Jeder Zyklus ist Force-Refresh für Live-Updates
 
 #if LINUX
 			this.EnableWineCompatibilityMode = true;
@@ -219,6 +222,9 @@ namespace EveOPreview.Configuration.Implementation
 		public Dictionary<string, ZoomAnchor> PerClientZoomAnchor{ get; set; }
 		public bool MinimizeToTray { get; set; }
 		public int ThumbnailRefreshPeriod { get; set; }
+
+		[JsonProperty("ForceRefreshCycleThreshold")]
+		public int ForceRefreshCycleThreshold { get; set; }
 		public int ThumbnailResizeTimeoutPeriod { get; set; }
 
 		[JsonProperty("WineCompatibilityMode")]
@@ -293,7 +299,32 @@ namespace EveOPreview.Configuration.Implementation
 		public Color OverlayLabelColor { get; set; }
 
 		[JsonProperty]
-		public Font OverlayLabelFont { get; set; }
+		public Font OverlayLabelFont 
+		{ 
+			get 
+			{
+				// Cache and reuse font instance to reduce VRAM overhead for multiple overlays
+				if (_cachedOverlayFont == null || 
+				    _overlayLabelFont == null ||
+				    _cachedOverlayFont.Name != _overlayLabelFont.Name ||
+				    Math.Abs(_cachedOverlayFont.Size - _overlayLabelFont.Size) > 0.01 ||
+				    _cachedOverlayFont.Style != _overlayLabelFont.Style)
+				{
+					if (_cachedOverlayFont != null && _cachedOverlayFont != _overlayLabelFont)
+					{
+						_cachedOverlayFont.Dispose();
+					}
+					_cachedOverlayFont = _overlayLabelFont ?? new Font(FontFamily.GenericSansSerif, 10.0F, FontStyle.Bold);
+				}
+				return _cachedOverlayFont;
+			}
+			set 
+			{
+				_overlayLabelFont = value;
+				// Cache will be updated on next get
+			}
+		}
+		
 		public string IconName { get; set; }
 
 		public int ActiveClientHighlightThickness { get; set; }
@@ -445,6 +476,7 @@ namespace EveOPreview.Configuration.Implementation
 			this.ThumbnailRefreshPeriod = ThumbnailConfiguration.ApplyRestrictions(this.ThumbnailRefreshPeriod, 300, 1000);
 #endif
 			this.ThumbnailResizeTimeoutPeriod = ThumbnailConfiguration.ApplyRestrictions(this.ThumbnailResizeTimeoutPeriod, 200, 5000);
+			this.ForceRefreshCycleThreshold = ThumbnailConfiguration.ApplyRestrictions(this.ForceRefreshCycleThreshold, 1, 10);
 			this.ThumbnailSize = new Size(ThumbnailConfiguration.ApplyRestrictions(this.ThumbnailSize.Width, this.ThumbnailMinimumSize.Width, this.ThumbnailMaximumSize.Width),
 				ThumbnailConfiguration.ApplyRestrictions(this.ThumbnailSize.Height, this.ThumbnailMinimumSize.Height, this.ThumbnailMaximumSize.Height));
 			this.ThumbnailOpacity = ThumbnailConfiguration.ApplyRestrictions((int)(this.ThumbnailOpacity * 100.00), 20, 100) / 100.00;
